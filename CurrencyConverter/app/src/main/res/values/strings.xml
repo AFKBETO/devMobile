@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Currency Converter</string>
+    <string name="euro">in €</string>
+    <string name="dollar">in $</string>
+    <string name="convert">CONVERT</string>
+    <string name="convertValueString">Value to convert</string>
 </resources>
