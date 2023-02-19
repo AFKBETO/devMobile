@@ -9,6 +9,7 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    private static final float _RATE = .93f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,20 +19,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void myClickHandler(View view) {
         if (view.getId() == R.id.button1) {
-            EditText text = (EditText) findViewById(R.id.editText1);
-            RadioButton euroButton = (RadioButton) findViewById(R.id.radioButton1);
-            RadioButton dollarButton = (RadioButton) findViewById(R.id.radioButton2);
+            EditText text = findViewById(R.id.editText1);
+            RadioButton euroButton = findViewById(R.id.radioButton1);
+            RadioButton dollarButton = findViewById(R.id.radioButton2);
             if (text.getText().length() == 0) {
                 Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_LONG).show();
                 return;
             }
             float inputValue = Float.parseFloat(text.getText().toString());
             if (euroButton.isChecked()) {
-                text.setText(String.valueOf(convertDollarToEuro(inputValue)));
+                text.setText(String.format("%.2f", convertDollarToEuro(inputValue)));
                 euroButton.setChecked(false);
                 dollarButton.setChecked(true);
             } else {
-                text.setText(String.valueOf(convertEuroToDollar(inputValue)));
+                text.setText(String.format("%.2f", convertEuroToDollar(inputValue)));
                 dollarButton.setChecked(false);
                 euroButton.setChecked(true);
             }
@@ -39,9 +40,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private float convertDollarToEuro(float dollar) {
-        return dollar * 0.93f;
+        return dollar * _RATE;
     }
     private float convertEuroToDollar(float euro) {
-        return euro *1.08f;
+        return euro / _RATE;
     }
 }
