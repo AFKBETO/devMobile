@@ -19,7 +19,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void myClickHandler(View view) {
         if (view.getId() == R.id.button1) {
+            // recupere le champ de l'editText1
             EditText text = findViewById(R.id.editText1);
+            // recupere les boutons radio
             RadioButton euroButton = findViewById(R.id.radioButton1);
             RadioButton dollarButton = findViewById(R.id.radioButton2);
             if (text.getText().length() == 0) {
