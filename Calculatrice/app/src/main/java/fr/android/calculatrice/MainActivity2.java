@@ -7,7 +7,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity2 extends AppCompatActivity {
+    private static final String _NUMBERS = "0123456789";
     private static final String _OPERATORS = "+-*/";
 
     private String _buffer = "";
@@ -18,54 +19,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main2);
     }
 
+
     public void myClickHandler(View view) {
-        System.out.println("Stage: " + _stage);
-        System.out.println("Buffer: " + _buffer);
         int id = view.getId();
         String button = parseButton(id);
         System.out.println("Button: " + button);
         if (_stage == Stage.OPERAND) {
-            if (isDigit(button)) {
-                if (_buffer.matches("^0*$")) {
-                    _buffer = button;
-                } else {
-                    _buffer += button;
-                }
+            if (isNumber(button)) {
+                _buffer += button;
                 printOperation();
             } else if (isOperator(button)) {
-                if (_operator.equals("/") && _buffer.equals("0")) {
-                    printResult("Error");
-                    _operator = "";
-                    _buffer = "";
-                    _value = 0;
-                    _stage = Stage.OPERAND;
-                    printOperation();
-                } else {
-                    _value = !_operator.equals("") ? calculate(_value, _operator, Integer.parseInt(_buffer)): Integer.parseInt(_buffer);
-                    _buffer = "";
-                    _operator = button;
-                    _stage = Stage.OPERATOR;
-                    printOperation();
-                }
+                _value = _operator != "" ? calculate(_value, _operator, Integer.parseInt(_buffer)): Integer.parseInt(_buffer);
+                _buffer = "";
+                _operator = button;
+                _stage = Stage.OPERATOR;
+                printOperation();
             } else if (isEquals(button)) {
-                if (_operator.equals("/") && _buffer.equals("0")) {
-                    printResult("Error");
-                    _operator = "";
-                    _buffer = "";
-                    _value = 0;
-                } else if (_operator.equals("")) {
-                    _value = Integer.parseInt(_buffer);
-                    printResult("" + _value);
-                } else {
-                    printResult("" + calculate(_value, _operator, Integer.parseInt(_buffer)));
-                }
+                printResult("" + calculate(_value, _operator, Integer.parseInt(_buffer)));
                 _stage = Stage.RESULT;
             }
         } else if (_stage == Stage.OPERATOR) {
-            if (isDigit(button)) {
+            if (isNumber(button)) {
                 _buffer += button;
                 _stage = Stage.OPERAND;
                 printOperation();
@@ -73,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                 _operator = button;
                 printOperation();
             } else if (isEquals(button)) {
-                _buffer = "";
+                _buffer = "" + _value;
                 _operator = "";
                 printOperation();
                 _stage = Stage.RESULT;
@@ -81,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         } else if (_stage == Stage.RESULT) {
-            if (isDigit(button)) {
+            if (isNumber(button)) {
                 _buffer = button;
                 _value = 0;
                 _operator = "";
@@ -93,9 +70,10 @@ public class MainActivity extends AppCompatActivity {
                 _stage = Stage.OPERATOR;
                 printOperation();
             } else if (isEquals(button)) {
-                printOperation();
-                printResult("" + calculate(_value, _operator, isNumber(_buffer) ? Integer.parseInt(_buffer) : 0));
+                _stage = Stage.RESULT;
+                printResult("" + calculate(_value, _operator, Integer.parseInt(_buffer)));
             }
+
         }
     }
 
@@ -107,15 +85,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity2.class);
         startActivity(intent);
     }
-    private boolean isOperator(String string) {
-        return _OPERATORS.contains(string);
+    private boolean isOperator(String button) {
+        return _OPERATORS.contains(button);
     }
 
     private void printOperation(){
         String operandText = _value == 0 ? "" : ("" + _value);
-        System.out.println("OperandText: " + operandText);
         String operationText = operandText + _operator + _buffer;
-        System.out.println("operationText: " + operationText);
         TextView text = (TextView) findViewById(R.id.operation_text);
         text.setText(operationText);
     }
@@ -125,16 +101,12 @@ public class MainActivity extends AppCompatActivity {
         text.setText(resultText);
     }
 
-    private boolean isDigit(String string) {
-        return string.matches("^\\d$");
+    private boolean isNumber(String button) {
+        return _NUMBERS.contains(button);
     }
 
-    private boolean isNumber(String string) {
-        return string.matches("^[1-9]\\d*$");
-    }
-
-    private boolean isEquals(String string) {
-        return string.equals("=");
+    private boolean isEquals(String button) {
+        return button.equals("=");
     }
 
     private int calculate(int value, String operator, int buffer) {
@@ -147,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             case "*":
                 return value * buffer;
             case "/":
-                return buffer != 0 ? value / buffer : 0;
+                return value / buffer;
             default:
                 return value;
         }

@@ -254,8 +254,9 @@
             android:layout_gravity="bottom"
             android:layout_margin="1dp"
             android:layout_weight="1"
-            android:clickable="false"
-            android:enabled="false"
+            android:clickable="true"
+            android:enabled="true"
+            android:onClick="previousActivity"
             android:text="@string/back" />
 
         <Button

@@ -17,4 +17,6 @@
     <string name="divide">/</string>
     <string name="operations">Operations</string>
     <string name="result">Result</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
 </resources>
