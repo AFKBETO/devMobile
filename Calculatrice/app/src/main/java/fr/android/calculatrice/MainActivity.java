@@ -7,14 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String _OPERATORS = "+-*/";
-
-    private String _buffer = "";
-    private int _value = 0;
-    private String _operator = "";
-    private Stage _stage = Stage.OPERAND;
-
+public class MainActivity extends CalculatriceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,87 +100,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity2.class);
         startActivity(intent);
     }
-    private boolean isOperator(String string) {
-        return _OPERATORS.contains(string);
-    }
 
-    private void printOperation(){
-        String operandText = _value == 0 ? "" : ("" + _value);
-        System.out.println("OperandText: " + operandText);
-        String operationText = operandText + _operator + _buffer;
-        System.out.println("operationText: " + operationText);
-        TextView text = (TextView) findViewById(R.id.operation_text);
-        text.setText(operationText);
-    }
-
-    private void printResult(String resultText){
+    private void printResult(String resultText) {
         TextView text = (TextView) findViewById(R.id.result_text);
         text.setText(resultText);
-    }
-
-    private boolean isDigit(String string) {
-        return string.matches("^\\d$");
-    }
-
-    private boolean isNumber(String string) {
-        return string.matches("^[1-9]\\d*$");
-    }
-
-    private boolean isEquals(String string) {
-        return string.equals("=");
-    }
-
-    private int calculate(int value, String operator, int buffer) {
-        System.out.println("Calculate: " + value + " " + operator + " " + buffer);
-        switch (operator) {
-            case "+":
-                return value + buffer;
-            case "-":
-                return value - buffer;
-            case "*":
-                return value * buffer;
-            case "/":
-                return buffer != 0 ? value / buffer : 0;
-            default:
-                return value;
-        }
-    }
-
-
-    private String parseButton(int buttonId) {
-        switch (buttonId) {
-            case R.id.button1:
-                return "1";
-            case R.id.button2:
-                return "2";
-            case R.id.button3:
-                return "3";
-            case R.id.button4:
-                return "4";
-            case R.id.button5:
-                return "5";
-            case R.id.button6:
-                return "6";
-            case R.id.button7:
-                return "7";
-            case R.id.button8:
-                return "8";
-            case R.id.button9:
-                return "9";
-            case R.id.button0:
-                return "0";
-            case R.id.button_plus:
-                return "+";
-            case R.id.button_minus:
-                return "-";
-            case R.id.button_multiply:
-                return "*";
-            case R.id.button_divide:
-                return "/";
-            case R.id.button_equal:
-                return "=";
-            default:
-                throw new IllegalArgumentException("Invalid button id");
-        }
     }
 }
