@@ -98,6 +98,7 @@
                     android:text="@string/plus"
                     android:textSize="48sp" />
 
+
             </LinearLayout>
 
             <LinearLayout
@@ -208,11 +209,21 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/button0"
+                    android:id="@+id/button_clr"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_margin="1dp"
                     android:layout_weight="1"
+                    android:onClick="myClickHandler"
+                    android:text="@string/clr"
+                    android:textSize="24sp" />
+
+                <Button
+                    android:id="@+id/button0"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="1dp"
+                    android:layout_weight="2"
                     android:onClick="myClickHandler"
                     android:text="@string/zero"
                     android:textSize="48sp" />
@@ -230,15 +241,6 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/button_equal"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_margin="1dp"
-            android:layout_weight="1"
-            android:onClick="myClickHandler"
-            android:text="@string/equal"
-            android:textSize="48sp" />
     </LinearLayout>
 
     <LinearLayout

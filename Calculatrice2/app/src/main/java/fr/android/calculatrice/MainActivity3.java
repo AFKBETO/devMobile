@@ -11,6 +11,7 @@ public class MainActivity3 extends CalculatriceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTextViews(R.id.result_text, R.id.operation_text);
         setContentView(R.layout.activity_main3);
     }
 
@@ -46,7 +47,7 @@ public class MainActivity3 extends CalculatriceActivity {
     }
 
     public void previousActivity(View view) {
-        Intent intent = new Intent(this, MainActivity2.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 }

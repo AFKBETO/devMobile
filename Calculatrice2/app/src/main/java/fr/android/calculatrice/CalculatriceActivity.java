@@ -5,32 +5,29 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public abstract class CalculatriceActivity extends AppCompatActivity {
-    protected static final String _OPERATORS = "+-*/";
 
+    private TextView _resultTextView;
+    private TextView _operationTextView;
+    protected static final String _OPERATORS = "+-*/";
     protected String _buffer = "";
     protected int _value = 0;
     protected String _operator = "";
     protected Stage _stage = Stage.OPERAND;
+    protected void setTextViews(int resultTextId, int operationTextId) {
+
+    }
     protected boolean isDigit(String string) {
         return string.matches("^\\d$");
-    }
-
-    protected boolean isNumber(String string) {
-        return string.matches("^[1-9]\\d*$");
     }
 
     protected boolean isOperator(String string) {
         return _OPERATORS.contains(string) && string.length() == 1;
     }
-    protected boolean isEquals(String string) {
-        return string.equals("=");
-    }
 
     protected void printOperation(){
         String operandText = _value == 0 && !isOperator(_operator) ? "" : ("" + _value);
         String operationText = operandText + _operator + _buffer;
-        TextView text = (TextView) findViewById(R.id.operation_text);
-        text.setText(operationText);
+        _operationTextView.setText(operationText);
     }
 
     protected void printResult(){
@@ -46,11 +43,15 @@ public abstract class CalculatriceActivity extends AppCompatActivity {
         } else {
             resultText = "" + _value;
         }
-        TextView text = (TextView) findViewById(R.id.result_text);
-        text.setText(resultText);
+        _resultTextView.setText(resultText);
     }
 
     protected int calculate(int value, String operator, int buffer) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
         System.out.println("Calculate: " + value + " " + operator + " " + buffer);
         switch (operator) {
             case "+":
@@ -96,8 +97,6 @@ public abstract class CalculatriceActivity extends AppCompatActivity {
                 return "*";
             case R.id.button_divide:
                 return "/";
-            case R.id.button_equal:
-                return "=";
             default:
                 throw new IllegalArgumentException("Invalid button id");
         }
