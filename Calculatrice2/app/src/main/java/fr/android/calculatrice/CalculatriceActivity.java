@@ -14,7 +14,8 @@ public abstract class CalculatriceActivity extends AppCompatActivity {
     protected String _operator = "";
     protected Stage _stage = Stage.OPERAND;
     protected void setTextViews(int resultTextId, int operationTextId) {
-
+        _resultTextView = findViewById(resultTextId);
+        _operationTextView = findViewById(operationTextId);
     }
     protected boolean isDigit(String string) {
         return string.matches("^\\d$");
