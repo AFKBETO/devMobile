@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivityHandler extends AppCompatActivity {
     private Handler _handler;
     private TextView _resultTextView;
     private TextView _operationTextView;
@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void nextActivity(View view) {
-        Intent intent = new Intent(this, MainActivity3.class);
+        Intent intent = new Intent(this, MainActivityAsyncTask.class);
         startActivity(intent);
     }
 
@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int calculate(int value, String operator, int buffer) {
         try {
+            // simulate long calculation
             Thread.sleep(2000);
         } catch (InterruptedException e){
             e.printStackTrace();
