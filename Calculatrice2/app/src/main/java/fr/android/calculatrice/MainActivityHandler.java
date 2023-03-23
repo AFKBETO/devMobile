@@ -1,6 +1,5 @@
 package fr.android.calculatrice;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -8,18 +7,25 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 public class MainActivityHandler extends AppCompatActivity {
     private Handler _handler;
     private TextView _resultTextView;
     private TextView _operationTextView;
 
+    private ServerSocket _serverSocket;
+
     private static final String _OPERATORS = "+-*/";
     private String _buffer = "";
-    private int _value = 0;
-    private String _operator = "";
+    private double _value = 0;
+    private char _operator = ' ';
 
-    private int _result = 0;
-    private Stage _stage = Stage.OPERAND;
+    private double _result = 0;
+    private Stage _stage = Stage.RESULT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,82 +37,69 @@ public class MainActivityHandler extends AppCompatActivity {
     }
 
     public void myClickHandler(View view) {
-        Runnable runnable = () -> {
-            int id = view.getId();
-            String button = parseButton(id);
+        int id = view.getId();
+        String button = parseButton(id);
 
-            System.out.println("Button: " + button);
-            if (isClear(button)) {
-                _buffer = "";
+        System.out.println("Button: " + button);
+        if (isEqual(button)) {
+            _stage = Stage.RESULT;
+            new Thread(new CalculatorRunnable()).start();
+        } else if (_stage.equals(Stage.RESULT)) {
+            if (isDigit(button)) {
                 _value = 0;
-                _operator = "";
-                _result = 0;
                 _stage = Stage.OPERAND;
-            } else if (_stage == Stage.OPERAND) {
-                if (isDigit(button)) {
-                    if (_buffer.matches("^0*$")) {
-                        _buffer = button;
-                    } else {
-                        _buffer += button;
-                    }
+                _buffer = button;
+                _operator = ' ';
+            } else {
+                _value = _result;
+                _buffer = "";
+                _stage = Stage.OPERATOR;
+                _operator = button.charAt(0);
+            }
+        } else if (_stage.equals(Stage.OPERAND)) {
+            if (isDigit(button)) {
+                if (_buffer.matches("^0+$")) {
+                    _buffer = button;
                 } else {
-                    if (!divideByZero()) {
-                        _value = !_operator.equals("") ? _result: Integer.parseInt(_buffer);
-                    }
-                    _buffer = "";
-                    _operator = button;
-                    _stage = Stage.OPERATOR;
-                }
-            } else if (_stage == Stage.OPERATOR) {
-                if (isDigit(button)) {
                     _buffer += button;
-                    _stage = Stage.OPERAND;
-                } else {
-                    _operator = button;
+                }
+            } else if (isOperator(button)) {
+                _stage = Stage.OPERATOR;
+                _operator = button.charAt(0);
+                if (_value == 0) {
+                    _value = Double.parseDouble(_buffer);
+                    _buffer = "";
                 }
             }
-            String operationText = getOperationText();
-            _handler.post(() -> {
-                _operationTextView.setText(operationText);
-            });
-            String resultText = getResultText();
-            _handler.post(() -> {
-                _resultTextView.setText(resultText);
-            });
-        };
-        new Thread(runnable).start();
+        } else if (_stage.equals(Stage.OPERATOR)) {
+            if (isDigit(button)) {
+                _stage = Stage.OPERAND;
+                if (_buffer.matches("^0+$")) {
+                    _buffer = button;
+                } else {
+                    _buffer += button;
+                }
+            } else if (isOperator(button)) {
+                _operator = button.charAt(0);
+            }
+        }
+        String operationText = getOperationText();
+        _operationTextView.setText(operationText);
     }
 
     private String getOperationText() {
-        if (_stage == Stage.OPERAND && _buffer.length() == 0) {
-            return "Operations";
-        }
-        String operandText = _value == 0 && !isOperator(_operator) ? "" : ("" + _value);
-        return operandText + _operator + _buffer;
-    }
-
-    private String getResultText(){
-        if (_buffer.length() == 0) {
-            return "Result";
-        }
-        if (_stage == Stage.OPERAND) {
-            if (_operator.equals("")) {
-                _result = Integer.parseInt(_buffer);
-            } else if (!divideByZero()) {
-                _result = calculate(_value, _operator, Integer.parseInt(_buffer));
+        if (_value == 0) {
+            if (_operator == ' ') {
+                if (_buffer.isEmpty()){
+                    return "Operation";
+                }
+                return _buffer;
+            } else {
+                return "0" + " " + _operator + " " + _buffer;
             }
         } else {
-            _result = _value;
+            return String.format("%.0f", _value) + " " + _operator + " " + _buffer;
         }
-        if (_stage == Stage.OPERAND && divideByZero()) {
-            return "Error";
-        }
-        return "" + _result;
-    }
-
-    public void nextActivity(View view) {
-        Intent intent = new Intent(this, MainActivityAsyncTask.class);
-        startActivity(intent);
     }
 
     private boolean isDigit(String string) {
@@ -117,34 +110,8 @@ public class MainActivityHandler extends AppCompatActivity {
         return _OPERATORS.contains(string) && string.length() == 1;
     }
 
-    private boolean isClear(String string) {
-        return string.equals("C");
-    }
-
-    private boolean divideByZero() {
-        return _operator.equals("/") && _buffer.matches("^0*$");
-    }
-
-    private int calculate(int value, String operator, int buffer) {
-        try {
-            // simulate long calculation
-            Thread.sleep(2000);
-        } catch (InterruptedException e){
-            e.printStackTrace();
-        }
-        System.out.println("Calculate: " + value + " " + operator + " " + buffer);
-        switch (operator) {
-            case "+":
-                return value + buffer;
-            case "-":
-                return value - buffer;
-            case "*":
-                return value * buffer;
-            case "/":
-                return buffer != 0 ? value / buffer : 0;
-            default:
-                return value;
-        }
+    private boolean isEqual(String string) {
+        return string.equals("=");
     }
 
     protected String parseButton(int buttonId) {
@@ -177,10 +144,37 @@ public class MainActivityHandler extends AppCompatActivity {
                 return "*";
             case R.id.button_divide:
                 return "/";
-            case R.id.button_clr:
-                return "C";
+            case R.id.button_equal:
+                return "=";
             default:
                 throw new IllegalArgumentException("Invalid button id");
         }
     }
+
+    private class CalculatorRunnable implements Runnable {
+        @Override
+        public void run() {
+            try {
+                Socket sock = new Socket("10.0.2.2", 9876);
+
+                DataInputStream dis = new DataInputStream(sock.getInputStream());
+                DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
+
+                dos.writeDouble(_value);
+                dos.writeChar(_operator);
+                dos.writeDouble(Double.parseDouble(_buffer));
+
+                _result = dis.readDouble();
+
+                _handler.post(() -> _resultTextView.setText(String.format("%.2f", _result)));
+
+                dis.close();
+                dos.close();
+                sock.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
+
