@@ -1,7 +1,10 @@
 package fr.android.calculatrice;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -17,7 +20,7 @@ public class MainActivityHandler extends AppCompatActivity {
     private TextView _resultTextView;
     private TextView _operationTextView;
 
-    private ServerSocket _serverSocket;
+    private Menu _menu;
 
     private static final String _OPERATORS = "+-*/";
     private String _buffer = "";
@@ -34,6 +37,13 @@ public class MainActivityHandler extends AppCompatActivity {
         _resultTextView = findViewById(R.id.result_text);
         _operationTextView = findViewById(R.id.operation_text);
         _handler = new Handler();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        _menu = menu;
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
     }
 
     public void myClickHandler(View view) {
@@ -165,8 +175,12 @@ public class MainActivityHandler extends AppCompatActivity {
                 dos.writeDouble(Double.parseDouble(_buffer));
 
                 _result = dis.readDouble();
+                @SuppressLint("DefaultLocale") String stringResult = String.format("%.2f", _result);
 
-                _handler.post(() -> _resultTextView.setText(String.format("%.2f", _result)));
+                _handler.post(() -> {
+                    _menu.add(getOperationText() + " = " + stringResult);
+                    _resultTextView.setText(stringResult);
+                });
 
                 dis.close();
                 dos.close();
