@@ -20,4 +20,7 @@
     <string name="back">Back</string>
     <string name="next">Next</string>
     <string name="history">History</string>
+    <string name="url">URL</string>
+    <string name="go">GO</string>
+    <string name="empty">empty</string>
 </resources>

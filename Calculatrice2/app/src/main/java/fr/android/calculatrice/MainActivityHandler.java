@@ -1,13 +1,16 @@
 package fr.android.calculatrice;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.DataInputStream;
@@ -15,12 +18,13 @@ import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import tools.DataStorage;
+
 public class MainActivityHandler extends AppCompatActivity {
     private Handler _handler;
     private TextView _resultTextView;
     private TextView _operationTextView;
-
-    private Menu _menu;
+    private int _counter = 0;
 
     private static final String _OPERATORS = "+-*/";
     private String _buffer = "";
@@ -41,9 +45,18 @@ public class MainActivityHandler extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        _menu = menu;
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.history) {
+            Intent intent = new Intent(this, History.class);
+            startActivity(intent);
+            return true;
+        }
+        return false;
     }
 
     public void myClickHandler(View view) {
@@ -165,7 +178,8 @@ public class MainActivityHandler extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                Socket sock = new Socket("10.0.2.2", 9876);
+                String ip = "10.3.214.117";
+                Socket sock = new Socket(ip, 9876);
 
                 DataInputStream dis = new DataInputStream(sock.getInputStream());
                 DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
@@ -178,7 +192,8 @@ public class MainActivityHandler extends AppCompatActivity {
                 @SuppressLint("DefaultLocale") String stringResult = String.format("%.2f", _result);
 
                 _handler.post(() -> {
-                    _menu.add(getOperationText() + " = " + stringResult);
+                    DataStorage.saveData(MainActivityHandler.this, "calc" + _counter,getOperationText() + " = " + stringResult);
+                    _counter++;
                     _resultTextView.setText(stringResult);
                 });
 
